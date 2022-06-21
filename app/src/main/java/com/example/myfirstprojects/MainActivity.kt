@@ -20,6 +20,7 @@ import kotlin.system.exitProcess
 class MainActivity : AppCompatActivity() {
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
+
     private val locationRequest: LocationRequest = LocationRequest.create().apply {
         interval = 30
         fastestInterval = 10
@@ -35,7 +36,12 @@ class MainActivity : AppCompatActivity() {
                 val location = locationList.last()
                 Toast.makeText(
                     this@MainActivity,
-                    "Got Location: " + location.toString(),
+                    "Got Location: ${
+                        "\n Latitude: "
+                            .plus(location.latitude)
+                            .plus("\n Longitude: ")
+                            .plus(location.longitude)
+                    }",
                     Toast.LENGTH_LONG
                 )
                     .show()
@@ -51,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         setupActions()
     }
 
+
     private fun initUI() {
         fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this)
 
@@ -63,8 +70,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
 
             fusedLocationProvider?.requestLocationUpdates(
@@ -87,6 +96,13 @@ class MainActivity : AppCompatActivity() {
             fusedLocationProvider?.removeLocationUpdates(locationCallback)
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Looper.getMainLooper().quit()
+        Looper.getMainLooper().quitSafely()
+    }
+
 
     private fun checkLocationPermission() {
         if (ActivityCompat.checkSelfPermission(
@@ -133,6 +149,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun requestLocationPermission() {
         ActivityCompat.requestPermissions(
             this,
@@ -161,6 +178,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -171,7 +189,6 @@ class MainActivity : AppCompatActivity() {
             MY_PERMISSIONS_REQUEST_LOCATION -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(
@@ -184,17 +201,14 @@ class MainActivity : AppCompatActivity() {
                             locationCallback,
                             Looper.getMainLooper()
                         )
-
                         // Now check background location
                         checkBackgroundLocation()
                     }
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
-
                     // Check if we are in a state where the user has denied the permission and
                     // selected Don't ask again
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(
@@ -215,7 +229,6 @@ class MainActivity : AppCompatActivity() {
             MY_PERMISSIONS_REQUEST_BACKGROUND_LOCATION -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(
@@ -236,7 +249,6 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                     }
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
